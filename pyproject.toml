@@ -2,8 +2,8 @@
 name = "pyredox"
 version = "1.0.4"
 description = ""
-authors = ["Mike Mabey <mike.mabey@cedar.com>"]
-homepage = "https://github.com/cedar-team/pyredox"
+authors = ["Mike Mabey <pypi@mikemabey.com>"]
+homepage = "https://github.com/mmabey/pyredox"
 license = "MIT"
 readme = "README.md"
 classifiers = [
