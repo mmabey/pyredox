@@ -21,6 +21,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           poetry-version: 1.5.1  # Last version to support Python 3.7
+          poetry-install-args: '-vvv --remove-untracked --with=dev'
 
       - name: Run tests
         env:
@@ -48,6 +49,7 @@ jobs:
         uses: mmabey/action-setup-python@v0.3.1
         with:
           python-version: ${{ matrix.python-version }}
+          poetry-install-args: '-vvv --remove-untracked --with=dev'
 
       - name: Run tests
         env:
@@ -77,6 +79,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           poetry-version: 1.5.1  # Last version to support Python 3.7
+          poetry-install-args: '-vvv --remove-untracked --with=dev'
 
       - name: Signal Finished
         env:
