@@ -57,6 +57,7 @@ legacy_tox_ini = """
         pytest
         coveralls
         retry2
+        tomlkit
     allowlist_externals = coverage
     commands =
         coverage run --source pyredox -m pytest -vv
