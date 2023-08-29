@@ -5,3 +5,4 @@
 .tox
 dist
 docs/_build/
+.DS_Store
