@@ -31,7 +31,7 @@ jobs:
           path: dist
 
   publish-test:
-    if: ${{ github.ref == 'refs/heads/dev' }}
+    if: ${{ github.ref == 'refs/heads/test_pypi' }}
     runs-on: ubuntu-latest
     needs: build
     steps:
