@@ -19,7 +19,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-pydantic = "~1.9.0"
+pydantic = "~2.2.0"
+typing-extensions = "*"  # Should already be present because of pydantic, no need to specify version
 
 [tool.poetry.group.dev.dependencies]
 Brotli = "^1.0.9"
@@ -31,8 +32,8 @@ pre-commit = [
 ]
 pytest = "^7"
 retry2 = "^0.9.3"
-tox = "^4.4"
-ufmt = "^2.0"
+tox = "^4.9"
+ufmt = "^2.2"
 tomlkit = "^0.12.1"
 
 [build-system]
