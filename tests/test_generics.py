@@ -34,4 +34,4 @@ def test_dict_to_generic_to_redox_to_dict(
 ):
     generic_object = model(**dict_input)
     assert isinstance(generic_object, model)
-    assert dict_input == generic_object.dict()
+    assert dict_input == generic_object.model_dump()

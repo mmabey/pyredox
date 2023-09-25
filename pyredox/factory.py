@@ -69,7 +69,7 @@ def redox_object_factory(
         )
 
     event_class = get_class_type(json_payload)
-    return event_class.parse_obj(json_payload)
+    return event_class.model_validate(json_payload)
 
 
 def from_redox_to_generic(
@@ -82,7 +82,7 @@ def from_redox_to_generic(
             "method."
         )
 
-    redox_dict = redox_instance.dict()
+    redox_dict = redox_instance.model_dump()
     # We don't have to do as much validation as the pyredox factory because we're
     # working with a validated Redox obj
     data_model = redox_dict["Meta"]["DataModel"]  # e.g., PatientAdmin, Scheduling, etc
@@ -90,12 +90,12 @@ def from_redox_to_generic(
 
     model_module = getattr(generic, data_model)
     if not model_module:
-        warn(f"Couldn't find the CedarRedox model module for {data_model}")
+        warn(f"Couldn't find the Generic Redox model module for {data_model}")
         return None
 
     event_class = getattr(model_module, event_type)
     if not event_class:
-        warn(f"Couldn't find CedarRedox event class for {event_type}")
+        warn(f"Couldn't find Generic Redox event class for {event_type}")
         return None
 
     return event_class(**redox_dict)
