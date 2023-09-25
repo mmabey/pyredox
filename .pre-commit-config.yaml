@@ -17,14 +17,13 @@ repos:
   hooks:
   - id: poetry-check
   - id: poetry-lock
-- repo: https://github.com/pycqa/flake8
-  rev: 6.1.0
-  hooks:
-  - id: flake8
-    exclude: _datetime\.py|docs
-    args: ["--ignore=E501,D105,F401"]
-    additional_dependencies: ['pep8-naming'] # 'flake8-docstrings', 'pydocstyle<4.0', 'darglint',
+    args: ["--no-update"]
 - repo: https://github.com/omnilib/ufmt
   rev: v2.2.0
   hooks:
   - id: ufmt
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.0.285
+  hooks:
+    - id: ruff
+      args: ["--fix", "--ignore=E501,D105,F401"]

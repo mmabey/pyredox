@@ -5,13 +5,17 @@ from typing import List, Type
 
 import pytest
 from pydantic import ValidationError
-from pydantic.typing import NoneType
 
 from pyredox.abstract_base import EventTypeAbstractModel
 from pyredox.claim import Submission
 from pyredox.factory import redox_object_factory
 from pyredox.generic import Claim as GenericClaim, types
 from pyredox.patientadmin import PatientUpdate
+
+try:  # NoneType was introduced in 3.10
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)
 
 str_patient_update = """
 {
@@ -62,10 +66,10 @@ def test_redox_factory_singles(model_type: Type[EventTypeAbstractModel], payload
         return
 
     # Test a few representative fields exist in created object
-    assert hasattr(redox_object, "Meta")
+    assert hasattr(redox_object, "Meta_")
     # Meta is always required to have DataModel and EventType
-    assert hasattr(redox_object.Meta, "DataModel")
-    assert hasattr(redox_object.Meta, "EventType")
+    assert hasattr(redox_object.Meta_, "DataModel_")
+    assert hasattr(redox_object.Meta_, "EventType_")
 
 
 @pytest.mark.parametrize(("model_types", "payload"), lists)
@@ -103,7 +107,8 @@ def test_casting():
         EventType="Modification",
         EventDateTime=datetime.now().isoformat(),
         Test=True,
-        Source=types.Source(ID="SecretSourceID", Name="Cedar"),
+        Message=types.Message(ID=12345),
+        Source={"ID": "SecretSourceID", "Name": "Test Co."},
         Destinations=[types.Destination(ID="SecretDestinationID")],
     )
 
@@ -131,7 +136,7 @@ def test_casting():
         )
     )
     subscriber = types.Subscriber.cast_from(
-        patient.Demographics,
+        patient.Demographics_,
         dict(
             ResponsibilityLevel="High",
             Insurance=dict(
@@ -153,11 +158,14 @@ def test_casting():
     assert isinstance(modification, Submission)
 
     # This verifies that setting fields by dictionary works as expected
-    assert modification.Subscriber.ResponsibilityLevel == "High"
+    assert modification.Subscriber_.ResponsibilityLevel_ == "High"
     assert (
-        modification.Subscriber.Insurance.Company.Address.StreetAddress == "123 Nowhere"
+        modification.Subscriber_.Insurance_.Company_.Address_.StreetAddress_
+        == "123 Nowhere"
     )
-    assert not hasattr(modification.Subscriber.Insurance.Company.Address, "Blahblah")
+    assert not hasattr(
+        modification.Subscriber_.Insurance_.Company_.Address_, "Blahblah"
+    )
 
     # This shows that the value from the patient.Demographics object took precedence
-    assert modification.Subscriber.FirstName == "Olivia"
+    assert modification.Subscriber_.FirstName_ == "Olivia"

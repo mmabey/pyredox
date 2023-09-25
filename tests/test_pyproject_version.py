@@ -16,7 +16,7 @@ def test_version():
         "bumped manually or by running `poetry version patch` directly. The "
         "easiest way to correct this is to revert the change to the version "
         "number in pyproject.toml and then run `pull_request.py --version` "
-        "from the redox_lib_gen tool."
+        "from the gen_redox_lib tool."
     )
 
     assert pyproject["tool"]["poetry"]["version"] == __version__, fail_msg
