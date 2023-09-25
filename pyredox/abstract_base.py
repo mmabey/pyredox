@@ -3,13 +3,13 @@
 import abc
 from typing import Any, Mapping, Union
 
-from pydantic import BaseModel, Extra, ExtraError, Field, ValidationError
-from pydantic.error_wrappers import ErrorWrapper
+from pydantic import BaseModel, Field, ValidationError
 
 __all__ = [
     "CannotRectifyValidationError",
     "EventTypeAbstractModel",
     "GenericEventTypeAbstractModel",
+    "MetaBase",
     "RedoxAbstractModel",
 ]
 
@@ -21,26 +21,14 @@ class CannotRectifyValidationError(Exception):
 def _pop_offending_field_values(
     args_for_new_object: dict, validation_err: ValidationError
 ):
-    err: ErrorWrapper
-    for err in validation_err.raw_errors:
-        if isinstance(err.exc, ValidationError):
-            # The location should only have one key in it
-            if len(err.loc_tuple()) != 1:
-                raise CannotRectifyValidationError(
-                    "Don't know what to do with a ValidationError that has a "
-                    "loc_tuple w/len > 1"
-                )
-            sub_args = args_for_new_object[err.loc_tuple()[0]]
-            _pop_offending_field_values(sub_args, err.exc)
-            continue
-
-        elif not isinstance(err.exc, ExtraError):
+    for err in validation_err.errors():
+        if err["type"] != "extra_forbidden":
             raise CannotRectifyValidationError(
-                f"Unknown validation error type: {err.exc.__class__.__name__}"
+                f"Unknown validation error type: {err['type']}"
             )
+
         parent_of_offending_field = args_for_new_object
-        # noinspection PyProtectedMember
-        locations = list(err.loc_tuple())
+        locations = list(err["loc"])
         offending_field = locations.pop()
         traversed = []
         for field in locations:
@@ -68,11 +56,8 @@ def _pop_offending_field_values(
             ) from err
 
 
-class RedoxAbstractModel(BaseModel, abc.ABC, extra=Extra.forbid):
+class RedoxAbstractModel(BaseModel, abc.ABC, extra="forbid"):
     Extensions: Any = Field(None)
-
-    def __str__(self):
-        return self.json()
 
     @classmethod
     def cast_from(
@@ -109,7 +94,7 @@ class RedoxAbstractModel(BaseModel, abc.ABC, extra=Extra.forbid):
         # starting with an empty dict then `update()`ing it using the dict version of
         # each object in ``others``.
         others = [
-            other.dict() if hasattr(other, "dict") else dict(other)
+            other.model_dump() if hasattr(other, "model_dump") else dict(other)
             for other in reversed(others)
         ]
         args = {}
@@ -125,48 +110,58 @@ class RedoxAbstractModel(BaseModel, abc.ABC, extra=Extra.forbid):
 
         return new_object
 
-    def dict(
+    def dict(self, *_, **__):
+        raise DeprecationWarning(
+            "The `dict` method is deprecated; use `model_dump` instead."
+        )
+
+    def json(self, *_, **__):
+        raise DeprecationWarning(
+            "The `json` method is deprecated; use `model_dump_json` instead."
+        )
+
+    def model_dump(
         self,
         *,
+        mode="python",
         include=None,
         exclude=None,
-        by_alias: bool = False,
-        skip_defaults: bool = None,
+        by_alias: bool = True,  # Differs from default
         exclude_unset: bool = True,  # Differs from default
         exclude_defaults: bool = False,
         exclude_none: bool = True,  # Differs from default
+        round_trip: bool = False,
+        **kwargs,
     ):
-        return super().dict(
+        return super().model_dump(
+            mode=mode,
             include=include,
             exclude=exclude,
             by_alias=by_alias,
-            skip_defaults=skip_defaults,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
+            round_trip=round_trip,
+            **kwargs,
         )
 
 
-class _Meta(RedoxAbstractModel, abc.ABC):
-    """Bare minimum fields for all ``Meta`` types.
+class MetaBase(RedoxAbstractModel, abc.ABC):
+    """Bare minimum fields for all ``Meta`` types."""
 
-    This is defined strictly for type hinting purposes. No ``Meta`` field class
-    should inherit from this or reference this class for simplicity's sake.
-    """
-
-    DataModel: str = Field(...)
-    EventType: str = Field(...)
+    DataModel_: str = Field(..., alias="DataModel")
+    EventType_: str = Field(..., alias="EventType")
 
 
 class EventTypeAbstractModel(RedoxAbstractModel, abc.ABC):
     """Event types should inherit from this instead of RedoxAbstractModel."""
 
-    Meta: _Meta = Field(...)
+    Meta_: MetaBase = Field(..., alias="Meta")
 
 
 class GenericEventTypeAbstractModel(RedoxAbstractModel):
-    _redox_module = ...  # e.g. patientadmin
-    Meta: _Meta = Field(...)
+    _redox_module: Any = ...  # e.g. patientadmin
+    Meta_: MetaBase = Field(..., alias="Meta")
 
     def to_redox(self) -> RedoxAbstractModel:
         """Figure out the correct pyredox model, instantiate, and return."""
@@ -183,10 +178,21 @@ class GenericEventTypeAbstractModel(RedoxAbstractModel):
         if not event_class:
             raise AttributeError(f"Couldn't find Redox event class for {class_name}")
 
-        return event_class(**super().dict())
+        return event_class.model_validate(super().model_dump())
 
-    def dict(self, *args, **kwargs):
-        return self.to_redox().dict(*args, **kwargs)
+    def dict(self):
+        raise DeprecationWarning(
+            "The `dict` method is deprecated; use `redox_dict` or `model_dump` instead."
+        )
 
-    def json(self, *args, **kwargs):
-        return self.to_redox().json(*args, **kwargs)
+    def json(self):
+        raise DeprecationWarning(
+            "The `json` method is deprecated; use `redox_json` or `model_dump_json` "
+            "instead."
+        )
+
+    def redox_dict(self, *args, **kwargs):
+        return self.to_redox().model_dump(*args, **kwargs)
+
+    def redox_json(self, *args, **kwargs):
+        return self.to_redox().model_dump_json(*args, **kwargs)

@@ -2,8 +2,8 @@
 
 [![PyPI Info](https://img.shields.io/pypi/v/pyredox.svg)](https://pypi.python.org/pypi/pyredox)
 [![Python Version](https://img.shields.io/pypi/pyversions/pyredox)](https://pypi.python.org/pypi/pyredox)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/cedar-team/pyredox/test_and_coverage.yml?branch=main)](https://github.com/cedar-team/pyredox/actions)
-[![Coverage Info](https://coveralls.io/repos/github/cedar-team/pyredox/badge.svg?branch=main)](https://coveralls.io/github/cedar-team/pyredox?branch=main)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mmabey/pyredox/test_and_coverage.yml?branch=main)](https://github.com/mmabey/pyredox/actions)
+[![Coverage Info](https://coveralls.io/repos/github/mmabey/pyredox/badge.svg?branch=main)](https://coveralls.io/github/mmabey/pyredox?branch=main)
 [![Black Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pyredox)](https://pypi.python.org/pypi/pyredox)
 [![PyPI - License](https://img.shields.io/pypi/l/pyredox?color=blue)](https://pypi.python.org/pypi/pyredox)
@@ -249,7 +249,7 @@ library's default behavior is to silently drop those fields with no current plan
 
 There's also a possibility that the "proper Redox" object you're building specifies a data type for a field that differs
 from other models that use that data type, which is a result of how the schema is specified. For example, the
-[generic `Demographics` class has the following field definition]([https://github.com/cedar-team/pyredox/blob/341407063f27d3b82000bcb86362ec00ce48dec2/pyredox/generic/types.py#L644]):
+[generic `Demographics` class has the following field definition]([https://github.com/mmabey/pyredox/blob/341407063f27d3b82000bcb86362ec00ce48dec2/pyredox/generic/types.py#L644]):
 
 ```python
 EmailAddresses: Union[List["EmailAddress"], List[str]]

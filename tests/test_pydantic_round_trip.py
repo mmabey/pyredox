@@ -48,7 +48,7 @@ def test_json_pyredox_json(json_file_path: Path):
     expected_type = get_class_type(sample)
     obj = expected_type(**sample)
     assert isinstance(obj, expected_type)
-    assert sample == obj.dict()
+    assert sample == obj.model_dump()
 
 
 @pytest.mark.parametrize(
@@ -71,4 +71,4 @@ def test_redox_factory(json_file_path: Path):
     expected_type = get_class_type(sample)
     obj = redox_object_factory(sample)
     assert isinstance(obj, expected_type)
-    assert sample == obj.dict()
+    assert sample == obj.model_dump()
