@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
 from datetime import date, datetime, timezone
-from types import NoneType
 from typing import List, Type
 
 import pytest
@@ -12,6 +11,11 @@ from pyredox.claim import Submission
 from pyredox.factory import redox_object_factory
 from pyredox.generic import Claim as GenericClaim, types
 from pyredox.patientadmin import PatientUpdate
+
+try:  # NoneType was introduced in 3.10
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)
 
 str_patient_update = """
 {
